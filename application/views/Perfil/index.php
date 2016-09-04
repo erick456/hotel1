@@ -1,0 +1,178 @@
+<?php
+  error_reporting(0);
+  if(!isset($_SESSION["idpersonal"])){
+    redirect("Login", "refresh");
+  }else{
+    include("app/includes/usuario.inc");
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>SISTEMA</title>
+
+    <!-- Bootstrap -->
+    <?php include("app/includes/link.inc"); ?>
+  </head>
+
+  <body class="nav-md">
+    <div class="container body">
+      <div class="main_container">
+
+        <?php include("app/includes/menu.inc"); ?>
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <!-- TODO EL CONTENIDO  -->
+
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Todos los Perfiles &nbsp;</h2>
+                    <div class="form-group">
+                      <div class="col-md-8">
+                        <button type="button" class="btn btn-success" onclick="nuevo();"><i class="fa fa-plus"></i> Nuevo</button>
+                      </div>
+                      <div class="col-md-1">
+                        <button type="button" class="btn btn-danger" onclick="inactivos();"><i class="fa fa-ban"></i> Ver Inactivos</button>
+                      </div>
+                    </div>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <table id="datatable-fixed-header" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Id</th>
+                          <th>Perfil</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                      <?php
+                        foreach ($perfil as $value){ ?> 
+                          <tr>
+                            <td><?php echo $value->idperfil?></td>
+                            <td><?php echo $value->descripcion?></td>
+                            <td>
+                              <button type="button" class="btn btn-info " onclick="editar('<?php echo $value->idperfil ?>')"><i class="fa fa-pencil"></i> Editar</button>
+                              <button type="button" class="btn btn-danger" onclick="eliminar('<?php echo $value->idperfil ?>');"><i class=" fa fa-trash-o"></i> Eliminar</button>
+                            </td>
+                          </tr>
+                       <?php } ?> 
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+
+          </div>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer>
+          <div class="pull-right">
+            Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+          </div>
+          <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+      </div>
+    </div>
+
+    <!-- Registrar Nuevo -->
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" id="nuevo">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+            </button>
+            <h4 class="modal-title" id="myModalLabel">Perfil</h4>
+          </div>
+          <div class="modal-body">
+            <form class="form-horizontal" role="form" id="formPerfil">
+              <input type="hidden" name="id" id="id">
+              <div class="form-group">
+                <label class="col-md-2 control-label" >Descripcion </label>
+                <div class="col-md-8">
+                  <input type="text" id="descripcion" name="descripcion" class="form-control" data-validate-length-range="6" data-validate-words="2" required="required" maxlength="30" onkeypress="return Letras(event);" >
+                </div>              
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="return guardar(this.form);"><i class="fa fa-floppy-o"></i> Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Ver Inactivos -->
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" id="inactivos">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+            </button>
+            <h4 class="modal-title" id="myModalLabel">Perfiles Desabilitados</h4>
+          </div>
+          <div class="modal-body">
+            <div class="x_panel">
+              <div class="x_content">
+                <table id="datatable-fixed-header" class="table table-striped table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Id</th>
+                      <th>Perfil</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                  <?php
+                    foreach ($eliminados as $value){ ?> 
+                      <tr>
+                        <td><?php echo $value->idperfil?></td>
+                        <td><?php echo $value->descripcion?></td>
+                        <td>
+                          <button type="button" class="btn btn-warning " onclick="activar('<?php echo $value->idperfil ?>')"><i class="fa fa-pencil"></i> Activar</button>
+                        </td>
+                      </tr>
+                   <?php } ?> 
+                  </tbody>
+                </table>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal" >Cerrar</button>
+                </div>
+              </div>
+            </div>                
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+        var urlbase="<?php echo base_url(); ?>";
+    </script>
+
+    <?php include("app/includes/js.inc"); ?>
+
+    <script src="<?php echo base_url(); ?>app/includes/datatable.js"></script>
+    <script src="<?php echo base_url(); ?>app/includes/estilo.js"></script>
+    <script src="<?php echo base_url(); ?>app/js/perfil.js"></script>
+    
+  </body>
+</html>
+<?php } ?>
